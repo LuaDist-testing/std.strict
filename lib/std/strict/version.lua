@@ -1,1 +1,1 @@
-return "Strict Variable Declaration / 1.3"
+return "Strict Variable Declaration / 1.3.1"

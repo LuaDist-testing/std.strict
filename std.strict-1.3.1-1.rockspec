@@ -1,6 +1,6 @@
 -- This file was automatically generated for the LuaDist project.
 
-local _MODREV, _SPECREV = '1.3', '-2'
+local _MODREV, _SPECREV = '1.3.1', '-1'
 
 package = 'std.strict'
 version = _MODREV .. _SPECREV
@@ -17,7 +17,7 @@ description = {
 
 -- LuaDist source
 source = {
-  tag = "1.3-2",
+  tag = "1.3.1-1",
   url = "git://github.com/LuaDist-testing/std.strict.git"
 }
 -- Original source

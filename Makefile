@@ -4,7 +4,7 @@ MKDIR	= mkdir -p
 SED	= sed
 SPECL	= specl
 
-VERSION	= 1.3
+VERSION	= 1.3.1
 
 luadir	= lib/std/strict
 SOURCES =				\
