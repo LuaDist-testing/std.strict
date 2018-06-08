@@ -1,6 +1,17 @@
 # std.strict NEWS - User visible changes
 
-## Noteworthy changes in release 1.0 (2016-02-07) [stable]
+## Noteworthy changes in release 1.1 (2016-04-10) [stable]
+
+### New features
+
+  - Strict environments created by this module now correctly proxy
+    `len` and `pairs` calls to the environment table.
+
+    Note that `ipairs` works by looking for the first numeric key
+    with a `nil` value, and a `nil` valued key in the environment table
+    is the exact criterion for an undeclared variable access.  This
+    means that passing a strict environment table to `ipairs` always
+    triggers an "assignment to undeclared variable <#env + 1>" error.
 
 ### Incompatible changes
 
@@ -17,7 +28,7 @@
     generated `std.strict.version` submodule.
 
 
-## Noteworthy changes in release 1.0 (2016-01-19) [stable]
+## Noteworthy changes in strict release 1.0 (2016-01-19) [stable]
 
 ### New features
 

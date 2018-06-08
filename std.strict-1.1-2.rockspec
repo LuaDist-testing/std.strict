@@ -1,5 +1,7 @@
+-- This file was automatically generated for the LuaDist project.
+
 package = "std.strict"
-version = "1.0-1"
+version = "1.1-2"
 
 description = {
   summary = "Check for use of undeclared variables",
@@ -11,10 +13,16 @@ description = {
   license = "MIT/X11",
 }
 
+-- LuaDist source
 source = {
-  url = "http://github.com/lua-stdlib/strict/archive/v1.0.zip",
-  dir = "strict-1.0",
+  tag = "1.1-2",
+  url = "git://github.com/LuaDist-testing/std.strict.git"
 }
+-- Original source
+-- source = {
+--   url = "http://github.com/lua-stdlib/strict/archive/v1.1.zip",
+--   dir = "strict-1.1",
+-- }
 
 dependencies = {
   "lua >= 5.1, < 5.4",
@@ -24,6 +32,7 @@ build = {
   type = "builtin",
   modules = {
     ["std.strict"]		= "lib/std/strict/init.lua",
+    ["std.strict._base"]	= "lib/std/strict/_base.lua",
     ["std.strict.version"]	= "lib/std/strict/version.lua",
   },
 }

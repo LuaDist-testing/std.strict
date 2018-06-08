@@ -2,6 +2,7 @@ before:
   this_module = "std.strict"
 
   M = require (this_module)
+  MAGIC = {"MAGIC"}
 
 
 specify std.strict:
@@ -26,62 +27,145 @@ specify std.strict:
 
 
 - describe strict:
-  - before:
-      f = M.strict
+  - context from module method:
+    - before:
+        f = M.strict
 
-  - it allows assignment to declared variables:
-      scope = f { foo = "bar" }
+    - it responds correctly to len:
+        mt = {__index = _G}
+        scope = setmetatable ({1, foo = "bar", "baz"}, mt)
+        local _ENV = f (scope)
+        expect (len (_ENV)).to_be (len (scope))
 
-      expect ((function () scope.foo = "baz" end) ()).
-        not_to_raise "not declared"
-      expect (scope.foo).to_be "baz"
+    - it propagates __len metamethod:
+        mt = {
+          __index = _G,
+          __len   = function () return MAGIC end,
+        }
+        local _ENV = f (setmetatable ({}, mt))
+        expect (len (_ENV)).to_be (MAGIC)
 
-  - it diagnoses assignment to undeclared variable:
-      scope = f { foo = "bar" }
+    - it responds correctly to pairs:
+        dst, mt = {}, {__index = _G}
+        scope = setmetatable ({1, foo = "bar", "baz"}, mt)
+        local _ENV = f (scope)
+        for k, v in pairs (_ENV) do dst[k] = v end
+        expect (dst).to_equal (scope)
 
-      expect ((function () scope.undefined = "rval" end) ()).
-        to_raise "assignment to undeclared variable 'undefined'"
+    - it propagates __pairs metamethod:
+        dst, src = {}, {1, foo = "bar", "baz"}
+        mt = {
+          __index = _G,
+          __pairs = function () return pairs (src) end,
+        }
+        scope = setmetatable ({}, mt)
+        local _ENV = f (scope)
+        for k, v in pairs (_ENV) do dst[k] = v end
+        expect (dst).to_equal (src)
 
-  - it allows reference to declared variables:
-      scope = f { foo = "bar" }
+    - it allows assignment to declared variables:
+        scope = f { foo = "bar" }
+        expect ((function () scope.foo = "baz" end) ()).
+          not_to_raise "not declared"
+        expect (scope.foo).to_be "baz"
 
-      expect ((function () return scope.foo end) ()).to_be "bar"
+    - it diagnoses assignment to undeclared variable:
+        scope = f { foo = "bar" }
+        expect ((function () scope.undefined = "rval" end) ()).
+          to_raise "assignment to undeclared variable 'undefined'"
 
-  - it diagnoses reference to undeclared variable:
-      scope = f {}
+    - it allows reference to declared variables:
+        scope = f { foo = "bar" }
+        expect ((function () return scope.foo end) ()).to_be "bar"
 
-      expect ((function () return scope.undefined end) ()).
-        to_raise "variable 'undefined' is not declared"
+    - it diagnoses reference to undeclared variable:
+        scope = f {}
+        expect ((function () return scope.undefined end) ()).
+          to_raise "variable 'undefined' is not declared"
 
-  - it allows assignemnt to undeclared global variables:
-      _ENV = f (setmetatable ({}, {__index=_G}))
-      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+    - it allows assignment to undeclared global variables:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+        defined = "rval"
+        expect (_ENV.defined).to_be "rval"
+        expect ((function () defined = "foo" end) ()).
+          not_to_raise "undeclared variable"
 
-      defined = "rval"
-      expect (_ENV.defined).to_be "rval"
-      expect ((function () defined = "foo" end) ()).
-        not_to_raise "undeclared variable"
+    - it diagnoses assignment to undeclared global variable:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+        expect ((function () undefined = "rval" end) ()).
+          to_raise "assignment to undeclared variable 'undefined'"
 
-  - it diagnoses assignment to undeclared global variable:
-      _ENV = f (setmetatable ({}, {__index=_G}))
-      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+    - it diagnoses reference to undeclared global variable:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+        expect ((function () foo = undefined end) ()).
+          to_raise "variable 'undefined' is not declared"
 
-      expect ((function () undefined = "rval" end) ()).
-        to_raise "assignment to undeclared variable 'undefined'"
+    - it does not leak into surrounding scope:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+        expect ((function () _G.undefined = "rval" end) ()).
+          not_to_raise "undefined"
 
-  - it diagnoses reference to undeclared global variable:
-      _ENV = f (setmetatable ({}, {__index=_G}))
-      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+  - context as callable:
+    - before:
+        f = M
 
-      expect ((function () foo = undefined end) ()).
-        to_raise "variable 'undefined' is not declared"
+    - it responds correctly to len:
+        mt = {__index = _G}
+        scope = setmetatable ({1, foo = "bar", "baz"}, mt)
+        local _ENV = f (scope)
+        expect (len (_ENV)).to_be (len (scope))
 
-  - it does not leak into surrounding scope:
-      _ENV = f (setmetatable ({}, {__index=_G}))
-      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+    - it propagates __len metamethod:
+        mt = {
+          __index = _G,
+          __len   = function () return MAGIC end,
+        }
+        local _ENV = f (setmetatable ({}, mt))
+        expect (len (_ENV)).to_be (MAGIC)
 
-      expect ((function () _G.undefined = "rval" end) ()).
-        not_to_raise "undefined"
+    - it responds correctly to pairs:
+        dst, mt = {}, {__index = _G}
+        scope = setmetatable ({1, foo = "bar", "baz"}, mt)
+        local _ENV = f (scope)
+        for k, v in pairs (_ENV) do dst[k] = v end
+        expect (dst).to_equal (scope)
+
+    - it propagates __pairs metamethod:
+        dst, src = {}, {1, foo = "bar", "baz"}
+        mt = {
+          __index = _G,
+          __pairs = function () return pairs (src) end,
+        }
+        scope = setmetatable ({}, mt)
+        local _ENV = f (scope)
+        for k, v in pairs (_ENV) do dst[k] = v end
+        expect (dst).to_equal (src)
+
+    - it allows assignment to undeclared global variables:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        defined = "rval"
+        expect (_ENV.defined).to_be "rval"
+        expect ((function () defined = "foo" end) ()).
+          not_to_raise "undeclared variable"
+
+    - it diagnoses assignment to undeclared global variable:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        expect ((function () undefined = "rval" end) ()).
+          to_raise "assignment to undeclared variable 'undefined'"
+
+    - it diagnoses reference to undeclared global variable:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        expect ((function () foo = undefined end) ()).
+          to_raise "variable 'undefined' is not declared"
+
+    - it does not leak into surrounding scope:
+        _ENV = f (setmetatable ({}, {__index=_G}))
+        expect ((function () _G.undefined = "rval" end) ()).
+          not_to_raise "undefined"
 
 
 - describe version:

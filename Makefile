@@ -4,10 +4,11 @@ MKDIR	= mkdir -p
 SED	= sed
 SPECL	= specl
 
-VERSION	= 1.0
+VERSION	= 1.1
 
 luadir	= lib/std/strict
 SOURCES =				\
+	$(luadir)/_base.lua		\
 	$(luadir)/init.lua		\
 	$(luadir)/version.lua		\
 	$(NOTHING_ELSE)

@@ -9,22 +9,28 @@
  proxy table to the given environment.  The callable runs `setfenv`
  appropriately in Lua 5.1 interpreters to ensure the semantic equivalence.
 
- @module strict
+ @module std.strict
 ]]
 
-local error		= error
-local pcall		= pcall
-local rawset		= rawset
-local require		= require
-local setfenv		= setfenv or function () end
-local setmetatable	= setmetatable
+local _ = {
+  base = require "std.strict._base",
+}
 
-local debug_getinfo	= debug.getinfo
+local _ENV = {
+  error		= error,
+  len		= _.base.len,
+  pairs		= _.base.pairs,
+  pcall		= pcall,
+  rawset	= rawset,
+  require	= require,
+  setfenv	= setfenv or function () end,
+  setmetatable	= setmetatable,
 
-
--- This module implementation only has access to locals imported above.
-local _ENV = {}
+  debug_getinfo	= debug.getinfo,
+}
 setfenv (1, _ENV)
+_ = nil
+
 
 
 --- What kind of variable declaration is this?
@@ -38,7 +44,7 @@ end
 return setmetatable ({
   --- Module table.
   -- @table strict
-  -- @field version
+  -- @string version release version identifier
 
 
   --- Require variable declarations before use in scope *env*.
@@ -59,8 +65,8 @@ return setmetatable ({
     -- The set of declared variables in this scope.
     local declared = {}
 
-    --- Metamethods
-    -- @section metamethods
+    --- Environment Metamethods
+    -- @section environmentmetamethods
 
     return setmetatable ({}, {
       --- Detect dereference of undeclared variable.
@@ -75,6 +81,11 @@ return setmetatable ({
         end
         return v
       end,
+
+      --- Proxy `len` calls.
+      -- @function env:__len
+      -- @tparam table t strict table
+      __len = function () return len (env) end,
 
       --- Detect assignment to undeclared variable.
       -- @function env:__newindex
@@ -91,11 +102,16 @@ return setmetatable ({
         declared[n] = true
         env[n] = v
       end,
+
+      --- Proxy `pairs` calls.
+      -- @function env:__pairs
+      -- @tparam table t strict table
+      __pairs = function () return pairs (env) end,
     })
   end,
 }, {
-  --- Metamethods
-  -- @section Metamethods
+  --- Module Metamethods
+  -- @section modulemetamethods
 
   --- Enforce strict variable declarations in *env*.
   -- @function strict:__call
