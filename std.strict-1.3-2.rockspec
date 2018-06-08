@@ -1,3 +1,5 @@
+-- This file was automatically generated for the LuaDist project.
+
 local _MODREV, _SPECREV = '1.3', '-2'
 
 package = 'std.strict'
@@ -13,10 +15,16 @@ description = {
    license = 'MIT/X11',
 }
 
+-- LuaDist source
 source = {
-   url = 'http://github.com/lua-stdlib/strict/archive/v' .. _MODREV .. '.zip',
-   dir = 'strict-' .. _MODREV,
+  tag = "1.3-2",
+  url = "git://github.com/LuaDist-testing/std.strict.git"
 }
+-- Original source
+-- source = {
+--    url = 'http://github.com/lua-stdlib/strict/archive/v' .. _MODREV .. '.zip',
+--    dir = 'strict-' .. _MODREV,
+-- }
 
 dependencies = {
    'lua >= 5.1, < 5.4',
