@@ -1,0 +1,95 @@
+before:
+  this_module = "std.strict"
+
+  M = require (this_module)
+
+
+specify std.strict:
+- before:
+    M.version = nil              -- previous specs may have autoloaded it
+
+- context when required:
+  - it returns a callable:
+      expect (getmetatable (strict).__call).not_to_be (nil)
+  - it does not touch the global table:
+      expect (show_apis {added_to="_G", by=this_module}).
+        to_equal {}
+
+- context when lazy loading:
+  - it has no submodules on initial load:
+      for _, v in pairs (M) do
+        expect (type (v)).not_to_be "table"
+      end
+  - it loads submodules on demand:
+      lazy = M.version
+      expect (lazy).to_be (require "std.strict.version")
+
+
+- describe strict:
+  - before:
+      f = M.strict
+
+  - it allows assignment to declared variables:
+      scope = f { foo = "bar" }
+
+      expect ((function () scope.foo = "baz" end) ()).
+        not_to_raise "not declared"
+      expect (scope.foo).to_be "baz"
+
+  - it diagnoses assignment to undeclared variable:
+      scope = f { foo = "bar" }
+
+      expect ((function () scope.undefined = "rval" end) ()).
+        to_raise "assignment to undeclared variable 'undefined'"
+
+  - it allows reference to declared variables:
+      scope = f { foo = "bar" }
+
+      expect ((function () return scope.foo end) ()).to_be "bar"
+
+  - it diagnoses reference to undeclared variable:
+      scope = f {}
+
+      expect ((function () return scope.undefined end) ()).
+        to_raise "variable 'undefined' is not declared"
+
+  - it allows assignemnt to undeclared global variables:
+      _ENV = f (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      defined = "rval"
+      expect (_ENV.defined).to_be "rval"
+      expect ((function () defined = "foo" end) ()).
+        not_to_raise "undeclared variable"
+
+  - it diagnoses assignment to undeclared global variable:
+      _ENV = f (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () undefined = "rval" end) ()).
+        to_raise "assignment to undeclared variable 'undefined'"
+
+  - it diagnoses reference to undeclared global variable:
+      _ENV = f (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () foo = undefined end) ()).
+        to_raise "variable 'undefined' is not declared"
+
+  - it does not leak into surrounding scope:
+      _ENV = f (setmetatable ({}, {__index=_G}))
+      if rawget (_G, "setfenv") then setfenv (1, _ENV) end
+
+      expect ((function () _G.undefined = "rval" end) ()).
+        not_to_raise "undefined"
+
+
+- describe version:
+  - it returns a string:
+      expect (type (M.version)).to_be "string"
+  - it contains package description:
+      expect (string.match (M.version, "Strict Variable Declaration ")).
+        not_to_be (nil)
+  - it ends with a semantic version number:
+      expect (string.match (M.version, "([%.%d]+)%D*$")).
+        not_to_be (nil)
