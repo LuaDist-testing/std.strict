@@ -1,27 +1,30 @@
 Diagnose uses of undeclared variables
 =====================================
 
+by the [strict project][github]
 Copyright (C) 2010-2017 [std.strict authors][authors]
 
 [![License](https://img.shields.io/:license-mit-blue.svg)](https://mit-license.org)
-[![travis-ci status](https://secure.travis-ci.org/lua-stdlib/strict.png?branch=master)](https://travis-ci.org/lua-stdlib/strict/builds)
+[![travis-ci status](https://secure.travis-ci.org/lua-stdlib/strict.png?branch=v1.3)](https://travis-ci.org/lua-stdlib/strict/builds)
 [![codecov.io](https://codecov.io/github/lua-stdlib/strict/coverage.svg?branch=master)](https://codecov.io/github/lua-stdlib/strict?branch=master)
 [![Stories in Ready](https://badge.waffle.io/lua-stdlib/strict.png?label=ready&title=Ready)](https://waffle.io/lua-stdlib/strict)
 
-All variables (including functions!) must be "declared" through a regular
-assignment (even assigning `nil` will do) in a strict scope before being
-used anywhere or assigned to inside a nested scope.
+This is a pure Lua library for detecting access to uninitialized
+variables from [Lua][] 5.1 (including [LuaJIT)][], 5.2 and 5.3.  The libraries
+are copyright by their authors (see the [AUTHORS][] file for details),
+and released under the [MIT license][mit] (the same license as Lua
+itself).  There is no warranty.
 
-Use the callable returned by this module to interpose a strictness check
-proxy table to the given environment.  The callable runs `setfenv`
-appropriately in Lua 5.1 interpreters to ensure the semantic equivalence.
-
-This is a pure Lua library compatible with [LuaJIT][], [Lua][] 5.1,
-5.2 and 5.3.
+When using this module, all variables (including functions!) must be 
+declared through a regularassignment (even assigning `nil` will do) in a
+strict scope before being used anywhere or assigned to inside a nested
+scope.
 
 [authors]: https://github.com/lua-stdlib/strict/blob/master/AUTHORS.md "std.strict contributors"
+[github]: https://github.com/lua-stdlib/strict "std.strict github repo"
 [lua]: https://www.lua.org "The Lua Project"
 [luajit]: http://luajit.org "The LuaJIT Project"
+[mit]: https://mit-license.org "MIT License"
 
 
 Installation
@@ -50,22 +53,23 @@ The best way to install without [LuaRocks][] is to copy the
 Use
 ---
 
-The strict package returns a callable "functable" that returns an
-environment that requires all variables be declared before use.
+The strict package returns a callable, which when called returns a
+strict environment table that requires all variables be declared before
+use. For compatibility with Lua 5.2 and 5.3, you must assign this
+environment table to `_ENV`; if necessary, `setfenv` will be called
+automatically for compatibility with Lua 5.1 and LuaJIT.
 
 ```lua
-   local strict = require 'std.strict'
-
-   -- For use of the global environment from this scope.
-   local _ENV = strict(_G)
+   -- For example, use of the global environment from this scope.
+   local _ENV = require 'std.strict' (_G)
 
    -- Or, prevent all access to global environment.
-   local _ENV = strict{}
+   local _ENV = require 'std.strict' {}
 
    -- Or, control access to limited environment from this scope.
-   local _ENV = strict{
+   local _ENV = require 'std.strict' {
       setmetatable = setmetatable,
-      type         = type,
+      type = type,
       table_unpack = table.unpack or unpack,
    }
 ```
@@ -76,7 +80,7 @@ Documentation
 -------------
 
 The latest release is [documented with LDoc][github.io].
-Pre-built HTML files are included in the [release tarball][].
+Pre-built HTML files are included in the [release tarball][release].
 
 [github.io]: https://lua-stdlib.github.io/strict "Documentation"
 [release]: https://lua-stdlib.github.io/strict/releases "Releases"
@@ -84,6 +88,8 @@ Pre-built HTML files are included in the [release tarball][].
 
 Bug reports and code contributions
 ----------------------------------
+
+This library is written and maintained by its users.
 
 Please make bug reports and suggestions as [GitHub Issues][issues].
 Pull requests are especially appreciated.
@@ -108,7 +114,7 @@ points when proposing changes:
 3. Save horizontal space by only using SPACES where the parser requires
    them.
 
-4. Use vertical spacing to separate out compound statements to help the
+4. Use vertical space to separate out compound statements to help the
    coverage reports discover untested lines.
 
 [github]: https://github.com/lua-stdlib/strict/ "Github repository"

@@ -1,6 +1,16 @@
 # std.strict NEWS - User visible changes
 
-## Noteworthy changes in release 1.2 (2017-02-04)
+## Noteworthy changes in release ?.? (????-??-??)
+
+
+## Noteworthy changes in release 1.3 (2017-09-17) [stable]
+
+### Bug Fixes
+
+  - where available, use setfenv to enforce _ENV table.
+
+
+## Noteworthy changes in release 1.2 (2017-02-04) [stable]
 
 ### New features
 

@@ -1,7 +1,9 @@
 -- This file was automatically generated for the LuaDist project.
 
+local _MODREV, _SPECREV = '1.3', '-1'
+
 package = 'std.strict'
-version = '1.2-1'
+version = _MODREV .. _SPECREV
 
 description = {
    summary = 'Check for use of undeclared variables',
@@ -15,32 +17,26 @@ description = {
 
 -- LuaDist source
 source = {
-  tag = "1.2-1",
+  tag = "1.3-1",
   url = "git://github.com/LuaDist-testing/std.strict.git"
 }
 -- Original source
 -- source = {
---    url = 'http://github.com/lua-stdlib/strict/archive/v1.2.zip',
---    dir = 'strict-1.2',
+--    url = 'http://github.com/lua-stdlib/strict/archive/v' .. _MODREV .. '.zip',
+--    dir = 'strict-' .. _MODREV,
 -- }
 
 dependencies = {
    'lua >= 5.1, < 5.4',
+   'ldoc',
 }
 
 build = {
-   type = 'command',
-   build_command = 'build-aux/luke'
-      .. ' PACKAGE="' .. package .. '"'
-      .. ' VERSION="' .. version .. '"'
-      .. ' PREFIX="$(PREFIX)"'
-      .. ' LUA="$(LUA)"'
-      .. ' INST_LIBDIR="$(LIBDIR)"'
-      .. ' INST_LUADIR="$(LUADIR)"'
-      ,
-   install_command = 'build-aux/luke install --quiet'
-      .. ' INST_LIBDIR="$(LIBDIR)"'
-      .. ' INST_LUADIR="$(LUADIR)"'
-      ,
+   type = 'builtin',
+   modules = {
+      ['std.strict']		= 'lib/std/strict/init.lua',
+      ['std.strict._base']	= 'lib/std/strict/_base.lua',
+      ['std.strict.version']	= 'lib/std/strict/version.lua',
+   },
    copy_directories = {'doc'},
 }

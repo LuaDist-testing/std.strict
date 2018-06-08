@@ -1,6 +1,6 @@
 --[[
  Strict variable declarations for Lua 5.1, 5.2 & 5.3
- Copyright(C) 2014-2017 Gary V. Vaughan
+ Copyright (C) 2014-2017 Gary V. Vaughan
 ]]
 --[[--
  Some minimal subset of std.normalize to make sure strict is
@@ -11,11 +11,11 @@
 ]]
 
 local _ENV = {
-   getmetatable	= getmetatable,
-   pairs	= pairs,
-   setfenv	= function() end,
-   setmetatable	= setmetatable,
-   type		= type,
+   getmetatable = getmetatable,
+   pairs = pairs,
+   setfenv = setfenv or function() end,
+   setmetatable = setmetatable,
+   type = type,
 }
 setfenv(1, _ENV)
 
@@ -25,7 +25,7 @@ setfenv(1, _ENV)
 -- @string n name of metamethod to look up
 -- @treturn function|nil metamethod function, if callable, otherwise `nil`
 local function getmetamethod(x, n)
-   local m =(getmetatable(x) or {})[n]
+   local m = (getmetatable(x) or {})[n]
    if type(m) == 'function' then
       return m
    end
